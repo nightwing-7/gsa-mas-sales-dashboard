@@ -707,6 +707,150 @@
             .bf-navbar-links a { font-size: 11px; }
             .bf-navbar-links .bf-hide-mobile { display: none; }
         }
+
+        /* ─── Hamburger Button ─── */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #E6E6E6;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 8px;
+            margin-right: 12px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .hamburger:hover { background: rgba(255,110,90,0.1); }
+
+        /* ─── Mobile Sidebar Overlay ─── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+        }
+        .sidebar-overlay.active { display: block; }
+
+        /* ─── Mobile Responsive ─── */
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+
+            .app { flex-direction: column; height: auto; min-height: 100vh; overflow: visible; }
+
+            .sidebar {
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                width: 260px;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                overflow-y: auto;
+            }
+            .sidebar.open { transform: translateX(0); }
+
+            .main { width: 100%; overflow: visible; }
+
+            .topbar {
+                padding: 12px 16px;
+                position: sticky;
+                top: 56px;
+                z-index: 100;
+            }
+            .topbar h1 { font-size: 16px; }
+            .topbar-meta { font-size: 10px; display: none; }
+
+            .content {
+                padding: 14px 12px;
+                overflow-y: visible;
+            }
+
+            /* KPI cards stack */
+            .kpi-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 16px;
+            }
+            .kpi { padding: 12px; }
+            .kpi-value { font-size: 20px; }
+            .kpi-label { font-size: 10px; }
+
+            /* Tables scroll horizontally */
+            .panel-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            table { min-width: 500px; font-size: 12px; }
+            th { padding: 7px 8px; font-size: 10px; }
+            td { padding: 7px 8px; font-size: 12px; }
+
+            /* Bar charts */
+            .bar-chart { height: 180px; gap: 4px; padding: 10px 0; }
+            .bar-val { font-size: 9px; }
+            .bar-lbl { font-size: 8px; }
+
+            /* Horizontal bars */
+            .hbar-label { width: 100px; font-size: 10px; }
+
+            /* Detail view */
+            .detail-head { padding: 14px; }
+            .detail-title { font-size: 18px; }
+            .detail-sub { font-size: 12px; }
+            .detail-stats { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .d-stat-value { font-size: 14px; }
+
+            /* Compare grid */
+            .compare-grid { grid-template-columns: 1fr !important; }
+            .compare-card { padding: 14px; }
+
+            /* CTA banner stacks */
+            .cta-banner { flex-direction: column; padding: 16px; text-align: center; }
+            .cta-banner-left { min-width: unset; }
+
+            /* CTA inline stacks */
+            .cta-inline { flex-direction: column; text-align: center; padding: 12px; }
+
+            /* Search & toggles */
+            .search-box { font-size: 13px; padding: 10px 12px; }
+            .toggle-row { flex-wrap: wrap; gap: 4px; }
+            .toggle-btn { padding: 6px 10px; font-size: 11px; }
+
+            /* Tabs scroll */
+            .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
+            .tab-btn { padding: 8px 12px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+
+            /* Pagination */
+            .pag { flex-wrap: wrap; gap: 4px; }
+            .pag button { padding: 6px 10px; font-size: 11px; }
+
+            /* Section titles */
+            .section-title { font-size: 13px; margin: 16px 0 8px 0; }
+
+            /* Lead bar stacks */
+            .lead-bar { flex-direction: column; padding: 12px 14px; gap: 10px; }
+            .lead-bar-text { min-width: unset; }
+            .lead-bar-text h3 { font-size: 13px; }
+            .lead-bar-text p { font-size: 11px; }
+            .lead-bar-form { width: 100%; }
+            .lead-bar-field { flex: 1; min-width: 0; width: auto; }
+            .lead-bar-btn { width: 100%; text-align: center; }
+            .lead-bar-cta { width: 100%; text-align: center; }
+
+            /* SIN filter inline row */
+            #sin-rankings > div[style] { flex-direction: column !important; gap: 8px !important; }
+
+            /* Breadcrumb */
+            .breadcrumb { font-size: 12px; }
+
+            /* Compare tags */
+            .ctag { font-size: 11px; padding: 4px 8px; }
+        }
+
+        @media (max-width: 420px) {
+            .kpi-row { grid-template-columns: 1fr; }
+            .bf-navbar-links .bf-cta-btn { padding: 6px 14px; font-size: 11px; }
+            .detail-stats { grid-template-columns: 1fr; }
+            table { min-width: 400px; }
+        }
     </style>
 </head>
 <body>
@@ -742,8 +886,9 @@
     </form>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 <div class="app" id="main-app">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <h2>GSA MAS</h2>
             <span>Sales Intelligence</span>
@@ -767,8 +912,11 @@
 
     <div class="main">
         <div class="topbar">
-            <h1 id="view-title">GSA MAS Sales Intelligence Dashboard</h1>
-            <div class="topbar-meta">FY2025 Q1 &ndash; FY2026 Q1 &middot; Source: SSQ+</div>
+            <div style="display:flex;align-items:center">
+                <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+                <h1 id="view-title">GSA MAS Sales Intelligence Dashboard</h1>
+            </div>
+            <div class="topbar-meta">FY2025 Q2 &ndash; FY2026 Q1 &middot; Source: SSQ+</div>
         </div>
 
         <div class="content">
@@ -1758,6 +1906,29 @@ document.addEventListener('click', function(e) {
         document.getElementById('compare-suggestions').style.display = 'none';
     }
 });
+
+// ─── Mobile Sidebar Toggle ───
+function toggleSidebar() {
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    sb.classList.toggle('open');
+    ov.classList.toggle('active');
+    document.body.style.overflow = sb.classList.contains('open') ? 'hidden' : '';
+}
+function closeSidebar() {
+    var sb = document.getElementById('sidebar');
+    var ov = document.getElementById('sidebar-overlay');
+    sb.classList.remove('open');
+    ov.classList.remove('active');
+    document.body.style.overflow = '';
+}
+// Close sidebar on nav click (mobile)
+var navItems = document.querySelectorAll('.nav-item');
+for (var i = 0; i < navItems.length; i++) {
+    navItems[i].addEventListener('click', function() {
+        if (window.innerWidth <= 768) closeSidebar();
+    });
+}
 
 // ─── Init ───
 window.addEventListener('load', renderDashboard);
